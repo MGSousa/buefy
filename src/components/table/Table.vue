@@ -58,6 +58,23 @@
                             </div>
                         </th>
                     </tr>
+                    <tr v-if="searchable && hasSearchablenewColumns">
+                        <th
+                            v-for="(column, index) in newColumns"
+                            v-if="(column.visible || column.visible === undefined)"
+                            :key="index"
+                            :style="{ width: column.width + 'px' }">
+                            <div class="th-wrap">
+                                <div v-if="column.searchable">
+                                    <b-field>
+                                        <b-input
+                                            v-model="filters[column.field]"
+                                            :type="column.numeric ? 'number' : 'text'" />
+                                    </b-field>
+                                </div>
+                            </div>
+                        </th>
+                    </tr>
                 </thead>
                 <tbody v-if="visibleData.length">
                     <template v-for="(row, index) in visibleData">
@@ -206,6 +223,7 @@
             loading: Boolean,
             detailed: Boolean,
             checkable: Boolean,
+            searchable: Boolean,
             selected: Object,
             focusable: Boolean,
             customIsChecked: Function,
@@ -272,6 +290,8 @@
                 newCurrentPage: this.currentPage,
                 currentSortColumn: {},
                 isAsc: true,
+                // Search filters
+                filters: {},
                 firstTimeSort: true, // Used by first time initSort
                 _isTable: true // Used by TableColumn
             }
@@ -340,6 +360,15 @@
             },
 
             /**
+             * Check if has any searchable column.
+             */
+            hasSearchablenewColumns() {
+                return this.newColumns.some((column) => {
+                    return column.searchable
+                })
+            },
+
+            /**
              * Return total column count based if it's checkable or expanded
              */
             columnCount() {
@@ -401,6 +430,14 @@
                 this.newColumns = [...value]
             },
 
+            filters: {
+                handler(value) {
+                    this.newData = this.data.filter(
+                        (row) => this.isRowFiltered(row))
+                },
+                deep: true
+            },
+
             /**
              * When newColumns change, call initSort only first time (For example async data).
              */
@@ -433,6 +470,23 @@
             }
         },
         methods: {
+            isRowFiltered(row) {
+                for (const key in this.filters) {
+                    // remove key if empty
+                    if (!this.filters[key]) {
+                        delete this.filters[key]
+                        return true
+                    }
+                    if (Number.isInteger(row[key])) {
+                        if (row[key] !== Number(this.filters[key])) return false
+                    } else {
+                        const re = new RegExp(this.filters[key])
+                        if (!row[key].match(re)) return false
+                    }
+                }
+                return true
+            },
+
             /**
              * Sort an array by key without mutating original data.
              * Call the user sort function if it was passed.
