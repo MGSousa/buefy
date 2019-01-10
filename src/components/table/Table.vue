@@ -59,6 +59,7 @@
                         </th>
                     </tr>
                     <tr v-if="searchable && hasSearchablenewColumns">
+                        <th v-if="detailed">&nbsp;</th>
                         <th
                             v-for="(column, index) in newColumns"
                             v-if="(column.visible || column.visible === undefined)"
@@ -122,10 +123,12 @@
                                     v-bind="column"
                                     :key="column.field"
                                     internal>
-                                    <span
-                                        v-if="column.renderHtml"
-                                        v-html="getValueByPath(row, column.field)"
-                                    />
+                                    <span v-if="column.renderHtml" v-html="getValueByPath(row, column.field)"/>
+                                    <span v-else-if="column.setOptions" v-for="(btns, k) in column.btns" :key="k">
+                                        <button class="button" :class="btns.cssClass" @click='onEdit(row)'>
+                                            {{ btns.text }}
+                                        </button> &nbsp;
+                                    </span>
                                     <template v-else>
                                         {{ getValueByPath(row, column.field) }}
                                     </template>
@@ -470,6 +473,10 @@
             }
         },
         methods: {
+            onEdit (row) {
+                this.$emit('fnEdit', row)
+            },
+
             isRowFiltered(row) {
                 for (const key in this.filters) {
                     // remove key if empty
