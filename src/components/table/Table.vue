@@ -487,8 +487,21 @@
                     if (Number.isInteger(row[key])) {
                         if (row[key] !== Number(this.filters[key])) return false
                     } else {
-                        const re = new RegExp(this.filters[key])
-                        if (!row[key].match(re)) return false
+                        //check if field has an object relationship from DB
+                        if (/[.]/.test(key)) {
+                            // recursive search
+                            let arrKey = key.split('.')
+                            if (row[arrKey[0]]
+                                && typeof row[arrKey[0]] === 'object')
+                                    if (row[arrKey[0]][arrKey[1]]) {
+                                        const recursiveResult = new RegExp(this.filters[key])
+                                        if (!row[arrKey[0]][arrKey[1]].match(recursiveResult))
+                                            return false
+                                    }
+                        }else{
+                            const re = new RegExp(this.filters[key])
+                            if (!row[key].match(re)) return false
+                        }
                     }
                 }
                 return true
