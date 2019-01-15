@@ -125,7 +125,7 @@
                                     internal>
                                     <span v-if="column.renderHtml" v-html="getValueByPath(row, column.field)"/>
                                     <span v-else-if="column.setOptions" v-for="(btns, k) in column.btns" :key="k">
-                                        <button class="button" :class="btns.cssClass" @click='onEdit(row)'>
+                                        <button class="button" :class="btns.cssClass" @click='btns.handler(row)'>
                                             {{ btns.text }}
                                         </button> &nbsp;
                                     </span>
@@ -473,10 +473,6 @@
             }
         },
         methods: {
-            onEdit (row) {
-                this.$emit('fnEdit', row)
-            },
-
             isRowFiltered(row) {
                 for (const key in this.filters) {
                     // remove key if empty
