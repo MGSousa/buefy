@@ -16,7 +16,7 @@
                         :icon="icon"
                         :pack="iconPack"
                         both
-                        size="is-large"/>
+                        :size="iconSize"/>
                 </div>
                 <div class="media-content">
                     <slot/>
