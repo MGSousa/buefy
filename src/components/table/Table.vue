@@ -125,7 +125,9 @@
                                     internal>
                                     <span v-if="column.renderHtml" v-html="getValueByPath(row, column.field)"/>
                                     <span v-else-if="column.setOptions" v-for="(btns, k) in column.btns" :key="k">
-                                        <b-switch v-if="btns.isSwitch" @input='btns.handler(row, $event)'>
+                                        <b-switch v-if="btns.isSwitch" 
+                                                v-model="row.isActive"
+                                                @input='btns.handler(row, $event)'>
                                             {{ btns.text }}
                                         </b-switch>
                                         <button v-else
