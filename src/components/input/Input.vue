@@ -22,6 +22,8 @@
             :maxlength="maxlength"
             :value="newValue"
             v-bind="$attrs"
+            @paste="onChange"
+            @change="onChange"
             @input="onInput"
             @blur="onBlur"
             @focus="onFocus"/>
@@ -200,6 +202,13 @@
              */
             onInput(event) {
                 this.$nextTick(() => { this.newValue = event.target.value })
+            },
+            
+            /**
+             * Input's 'onchange' event listener, fires on change text.
+             */
+            onChange (event) {
+                this.$emit('onChange', event)
             }
         }
     }
